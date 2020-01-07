@@ -48,8 +48,33 @@ app.get('/paystack/callback',(req,res)=>{
         ['reference','amount','email','full_name'] = data;
         newDonor = {reference,amount,email,full_name};
         const donor = new Donor(newDonor)
-        donor.save().then(donor)
+        donor.save().then((donor)=>{
+            if(!donor){
+                console.log(error);
+                res.redirect('/error');
+            }
+            res.redirect('/reciept/'+donor._id);
+        }).catch((e)=>{
+            res.redirect('/error');
+        })
     })
+});
+
+app.get('/receipt/:id', (req, res)=>{
+    const id = req.params.id;
+    Donor.findById(id).then((donor)=>{
+        if(!donor){
+            //handle error when the donor is not found
+            res.redirect('/error')
+        }
+        res.render('success.pug',{donor});
+    }).catch((e)=>{
+        res.redirect('/error')
+    })
+})
+
+app.get('/error', (req, res)=>{
+    res.render('error.pug');
 })
 
 

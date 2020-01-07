@@ -36,7 +36,7 @@ const verifypayment = (ref,mycallback)=>{
 }
 
 
-    return (initializepayment,verifypayment);
+return {initializepayment,verifypayment};
 
 }
 module.exports = paystack;

@@ -1,4 +1,4 @@
-const mongoose = require('./../config/mongoose');
+const {mongoose} = require('./../config/mongoose');
 
 const donorschema = new mongoose.Schema({
     full_name:{
@@ -8,10 +8,6 @@ const donorschema = new mongoose.Schema({
     email:{
         type: String,
         required : true,
-    },
-    phone:{
-        type: String,
-        required: true,
     },
     amount:{
         type: Number,

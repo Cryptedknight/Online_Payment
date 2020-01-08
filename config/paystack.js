@@ -1,6 +1,6 @@
 const paystack = (request)=>{
     const myseckey = 'Bearer sk_test_af54d3dc10f51cb7279e6aa0a5cfd554de303811';
-    const initializepayment = (form,mycallback)=>{
+    const initializePayment = (form,mycallback)=>{
         
         const options = {
             url: 'https://api.paystack.co/transaction/initialize',
@@ -18,7 +18,7 @@ const paystack = (request)=>{
         request.post(options,callback)
     }
 
-const verifypayment = (ref,mycallback)=>{
+const verifyPayment = (ref,mycallback)=>{
     const options = {
         url:  'https://api.paystack.co/transaction/verify/'+encodeURIComponent(ref),
         headers: {
@@ -36,7 +36,7 @@ const verifypayment = (ref,mycallback)=>{
 }
 
 
-return {initializepayment,verifypayment};
+return {initializePayment,verifyPayment};
 
 }
 module.exports = paystack;

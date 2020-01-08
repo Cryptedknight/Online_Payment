@@ -1,0 +1,30 @@
+extends layout
+block content
+    main
+        .row.justify-content-center
+            .col-lg-6.container3.text-white.p-5
+                .container4
+                    h3.text-center
+                        span.spn Y
+                        | ou
+                        span.spn C
+                        | an give as per your shradhha!
+                .container.pt-3
+                    form(name='myForm', action='/paystack/pay', method='POST')
+                        input#name(type='text', name='full_name', placeholder='Full Nname')
+                        hr
+                        input#email(type='email', name='email', placeholder='Email')
+                        hr
+                        //input#remarks(type='text',name='Remarks',placeholder='Remarks')
+                        //hr
+                        select(name='amount')
+                            option Select Amount
+                            option(value='500') 500
+                            option(value='1000') 1000
+                            option(value='2000') 2000
+                            option(value='3000') 3000
+                            option(value='4000') 4000
+                            option(value='5000') 5000
+                            option(value='6000') 6000
+                        .bttn.pt-2
+                            button(type='submit') Pay

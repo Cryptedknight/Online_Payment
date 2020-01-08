@@ -1,32 +1,36 @@
 const express = require('express');
-const bodyparser = require('body-parser');
+const request = require('request');
+const bodyParser = require('body-parser');
 const pug = require('pug');
+const _ = require('lodash');
 const path = require('path');
 
-const _ = require('lodash');
+const {Donor} = require('./models/customer')
+const {initializePayment, verifyPayment} = require('./config/paystack')(request);
 
-const {Donor} = require('./models/customer');
-const {initializepayment,verifypayment} = require('./config/paystack');
-const port = 3000;
+const port = process.env.PORT || 3000;
+
 const app = express();
 
-app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({extended: false}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(express.static(path.join(__dirname, 'public/')));
 app.set('view engine', pug);
 
-app.get('/',(req,res)=>{
-    res.render(index.pug);
+app.get('/',(req, res) => {
+    res.render('index.pug');
 });
 
-app.post('/paystack/pay',(req,res)=>{
+app.post('/paystack/pay', (req, res) => {
     const form = _.pick(req.body,['amount','email','full_name']);
     form.metadata = {
         full_name : form.full_name
     }
-    form.amount *=100;
-    initializepayment(form,(error,body)=>{
+    form.amount *= 100;
+    
+    initializePayment(form, (error, body)=>{
         if(error){
+            //handle errors
             console.log(error);
             return res.redirect('/error')
             return;
@@ -36,24 +40,29 @@ app.post('/paystack/pay',(req,res)=>{
     });
 });
 
-app.get('/paystack/callback',(req,res)=>{
+app.get('/paystack/callback', (req,res) => {
     const ref = req.query.reference;
-    verifypayment(ref,(error,body)=>{
+    verifyPayment(ref, (error,body)=>{
         if(error){
-            console.log(error);
-            res.redirect('/errror');
+            //handle errors appropriately
+            console.log(error)
+            return res.redirect('/error');
         }
-        response = JSON.parse(body);
-        const data = _.at(response.data,['reference','amount','customer.email','metadata.full_name']);
-        ['reference','amount','email','full_name'] = data;
-        newDonor = {reference,amount,email,full_name};
+        response = JSON.parse(body);        
+
+        const data = _.at(response.data, ['reference', 'amount','customer.email', 'metadata.full_name']);
+
+        [reference, amount, email, full_name] =  data;
+        
+        newDonor = {reference, amount, email, full_name}
+
         const donor = new Donor(newDonor)
+
         donor.save().then((donor)=>{
             if(!donor){
-                console.log(error);
-                res.redirect('/error');
+                return res.redirect('/error');
             }
-            res.redirect('/reciept/'+donor._id);
+            res.redirect('/receipt/'+donor._id);
         }).catch((e)=>{
             res.redirect('/error');
         })
@@ -77,7 +86,6 @@ app.get('/error', (req, res)=>{
     res.render('error.pug');
 })
 
-
-app.listen(port,()=>{
-    console.log('App is listening on port 3000');
-})
+app.listen(port, () => {
+    console.log(`App running on port ${port}`)
+});
